@@ -21,10 +21,8 @@
 #define IN4  23
 
 // PWM channels for ESP32
-#define PWM_CH_A 0
-#define PWM_CH_B 1
 #define PWM_FREQ 20000
-#define PWM_RES  8  // 8-bit (0–255)
+#define PWM_RES  8
 
 MPU6050 mpu;
 
@@ -84,8 +82,8 @@ void motorMove(int speed)
     leftSpeed  = constrain(abs(leftSpeed),  MIN_ABS_SPEED, 255);
     rightSpeed = constrain(abs(rightSpeed), MIN_ABS_SPEED, 255);
 
-    ledcWrite(PWM_CH_A, leftSpeed);
-    ledcWrite(PWM_CH_B, rightSpeed);
+    ledcWrite(ENA, leftSpeed);
+    ledcWrite(ENB, rightSpeed);
 }
 void setup() {
  Serial.begin(115200);
@@ -135,16 +133,13 @@ void setup() {
  Serial.println(F(")"));
  }
  // MOTOR SETUP
-    pinMode(IN1, OUTPUT);
-    pinMode(IN2, OUTPUT);
-    pinMode(IN3, OUTPUT);
-    pinMode(IN4, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
 
-    ledcAttachPin(ENA, PWM_CH_A);
-    ledcAttachPin(ENB, PWM_CH_B);
-
-    ledcSetup(PWM_CH_A, PWM_FREQ, PWM_RES);
-    ledcSetup(PWM_CH_B, PWM_FREQ, PWM_RES);
+  ledcAttach(ENA, PWM_FREQ, PWM_RES);
+  ledcAttach(ENB, PWM_FREQ, PWM_RES);
 }
 
 void loop() {
