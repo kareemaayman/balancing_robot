@@ -61,12 +61,12 @@ int mpuConnection;
 ///////////////////////////////////   SETUP   ////////////////////////////////////
 void setup() {
   // join I2C bus (I2Cdev library doesn't do this automatically)
-  Wire.begin();
+  Wire.begin(21,22);
   // COMMENT NEXT LINE IF YOU ARE USING ARDUINO DUE
-  TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz). Leonardo measured 250kHz.
+//  TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz). Leonardo measured 250kHz.
 
   // initialize serial communication
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   // initialize MPU-6050
   accelgyro.initialize();
