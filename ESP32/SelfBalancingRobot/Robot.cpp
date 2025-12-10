@@ -2,8 +2,8 @@
 
 Robot::Robot()
     : motors(26, 27, 25, 32, 23, 33),  // IN1, IN2, ENA, IN3, IN4, ENB
-      encoderLeft(34, 35, 20, 30),      // LA, LB, PPR, GearRatio
-      encoderRight(39, 36, 20, 30),     // RA, RB, PPR, GearRatio
+      encoderLeft(34, 35, 20, 110),      // LA, LB, PPR, GearRatio
+      encoderRight(39, 36, 20, 110),     // RA, RB, PPR, GearRatio
       anglePID(20.0, 0.0, 0.5),
       speedPIDLeft("Left", 0.5, 0.2, 0.1),
       speedPIDRight("Right", 0.5, 0.2, 0.1),
