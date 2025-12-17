@@ -2,10 +2,10 @@
 
 Robot::Robot()
     : motors(26, 27, 25, 32, 23, 33),  // IN1, IN2, ENA, IN3, IN4, ENB
-      encoderLeft(34, 35, 20, 110),      // LA, LB, PPR, GearRatio
-      encoderRight(39, 36, 20, 110),     // RA, RB, PPR, GearRatio
-      anglePID(20.0, 0.0, 0.5),
-      speedPIDLeft("Left", 0.5, 0.2, 0.1),
+      encoderLeft(34, 35),      // LA, LB
+      encoderRight(39, 36),     // RA, RB
+      anglePID(20.0, 0.0, 0.5),      // Kp,Ki,Kd
+      speedPIDLeft("Left", 0.5, 0.2, 0.1), //direction,Kp,Ki,Kd
       speedPIDRight("Right", 0.5, 0.2, 0.1),
       speedScale(5.0), turnCmd(0), kTurn(20.0),
       lastControlUpdate(0), isRunning(false) {
@@ -120,11 +120,11 @@ void Robot::printStatus() {
     Serial.print(imu.getPitchAngle(), 2);
     Serial.println("°");
     Serial.print("Left Speed: ");
-    Serial.print(encoderLeft.getSpeedRPM(), 1);
-    Serial.println(" RPM");
+    Serial.print(encoderLeft.getSpeedTicksPerSec(), 1);
+    Serial.print(" ticks/s (");
     Serial.print("Right Speed: ");
-    Serial.print(encoderRight.getSpeedRPM(), 1);
-    Serial.println(" RPM");
+    Serial.print(encoderRight.getSpeedTicksPerSec(), 1);
+    Serial.print(" ticks/s (");
 }
 
 void Robot::printDebug() {

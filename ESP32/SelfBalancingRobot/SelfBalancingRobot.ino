@@ -22,8 +22,8 @@ void setup() {
     }
     
     // Configure PID gains (conservative starting values)
-    robot.setAnglePIDGains(20.0, 0.0, 0.5);
-    robot.setSpeedPIDGains(0.5, 0.2, 0.1);
+    //robot.setAnglePIDGains(20.0, 0.0, 0.5);
+    //robot.setSpeedPIDGains(0.5, 0.2, 0.1); they are already in robot.cpp
     
     // Start robot
     robot.start();

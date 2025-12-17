@@ -82,5 +82,6 @@ void EncoderReader::printDebug() {
     Serial.print(lastDelta);
     Serial.print(" | Speed: ");
     Serial.print(speedTicksPerSec, 0);
-    Serial.print(" ticks/s (");
+    Serial.print(" ticks/s ");
+    Serial.println("");
 }

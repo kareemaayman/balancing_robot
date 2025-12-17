@@ -22,7 +22,7 @@ private:
     double kMove;
     
 public:
-    AnglePID(double Kp, double Ki, double Kd);
+    AnglePID(double Kp = 20.0, double Ki = 0.0, double Kd = 0.5);
     
     void initialize();
     

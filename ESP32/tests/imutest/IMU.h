@@ -9,11 +9,11 @@ class IMU {
 private:
     MPU6050 mpu;
     Kalman kalmanPitch;
-
-	float pitchAngle = 0.0f;
-	float gyroPitchRate = 0.0f;
-	float accPitch = 0.0f;
-	float dt = 0.0f;
+  float kalmanPitchAngle;
+	float pitchAngle;
+	float gyroPitchRate;
+	float accPitch;
+	float dt;
 	unsigned long lastTime = 0;
 
 

@@ -69,18 +69,13 @@ bool IMU::updateAngle() {
     gyroPitchRate = (float)gy / 131.0f;
 
     // Kalman filter
-    pitchAngle = kalmanPitch.getAngle(accPitch, gyroPitchRate, dt);
+    kalmanPitchAngle = kalmanPitch.getAngle(accPitch, gyroPitchRate, dt);
+    pitchAngle = kalmanPitchAngle + 90;
 
     return true;
 }
 
 void IMU::printDiagnostics() {
-    Serial.print("AccPitch: ");
-    Serial.print(accPitch, 2);
-    Serial.print(" | GyroY: ");
-    Serial.print(gyroPitchRate, 2);
-    Serial.print(" | KalmanPitch: ");
-    Serial.print(pitchAngle, 2);
-    Serial.print(" | dt(us): ");
-    Serial.println(dt * 1e6, 0);
+    Serial.print(" Pitch: ");
+    Serial.println(pitchAngle, 2);
 }
