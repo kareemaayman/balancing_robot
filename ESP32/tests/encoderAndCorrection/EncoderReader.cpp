@@ -58,8 +58,11 @@ void EncoderReader::updateSpeed() {
     lastDelta = count - lastCount;
     lastCount = count;
     
-    // Convert to ticks per second
-    speedTicksPerSec = (double)lastDelta * 1000.0 / dt;
+    // Calculate raw speed
+    double rawSpeed = (double)lastDelta * 1000.0 / dt;
+    
+    // Simple moving average (filter out spikes)
+    speedTicksPerSec = speedTicksPerSec * 0.7 + rawSpeed * 0.3;  // 70% old, 30% new
     
     lastUpdateTime = now;
 }
@@ -82,5 +85,6 @@ void EncoderReader::printDebug() {
     Serial.print(lastDelta);
     Serial.print(" | Speed: ");
     Serial.print(speedTicksPerSec, 0);
-    Serial.print(" ticks/s (");
+    Serial.print(" ticks/s ");
+    Serial.println("");
 }

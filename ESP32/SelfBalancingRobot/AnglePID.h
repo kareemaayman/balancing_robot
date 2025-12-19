@@ -15,7 +15,7 @@ private:
     PID pid;
     
     unsigned long lastComputeTime;
-    const unsigned long SAMPLE_TIME_MS = 10;
+    const unsigned long SAMPLE_TIME_MS = 10; //Sample Rate
     
     // Command inputs
     double forwardCmd;

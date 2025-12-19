@@ -24,13 +24,13 @@ private:
     double correctionRight;
     
     // Constants
-    static const uint8_t MIN_SPEED = 30;
+    static const uint8_t MIN_SPEED = 60;
     static const uint8_t MAX_SPEED = 255;
     
 public:
     MotorDriver(uint8_t leftIN1, uint8_t leftIN2, uint8_t leftENA,
                 uint8_t rightIN3, uint8_t rightIN4, uint8_t rightENB,
-                uint32_t pwmFreq = 20000, uint8_t pwmRes = 8);
+                uint32_t pwmFreq = 1000, uint8_t pwmRes = 8);
     
     void initialize();
     

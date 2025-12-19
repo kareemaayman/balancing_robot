@@ -2,7 +2,6 @@
 #include "IMU.h"
 #include "AnglePID.h"
 #include "MotorDriver.h"
-#include "BalanceConfig.h"
 
 // Hardware instances
 IMU imu;
@@ -10,8 +9,8 @@ AnglePID anglePID(20.0, 0.0, 0.0);  // Start with safe defaults
 MotorDriver motors(26, 27, 25, 32, 23, 33);
 
 // Tuning state
-double Kp = 20.0, Ki = 0.0, Kd = 0.0;
-int testPWMLimit = 120;  // Constrain output to safe range
+double Kp = 5.0, Ki = 0.0, Kd = 0.0;
+int testPWMLimit = 255;  // Constrain output to safe range
 bool motorsEnabled = false;
 unsigned long lastPrint = 0;
 
@@ -53,7 +52,7 @@ void loop() {
     return;  // No new data
   }
 
-  double angle = imu.getPitchAngle();
+  double angle = imu.getRollAngle();
 
   // Update angle PID
   anglePID.update(angle);
@@ -78,7 +77,7 @@ void loop() {
     Serial.print("s] Angle: ");
     Serial.print(angle, 2);
     Serial.print("° | Error: ");
-    Serial.print(angle - upright_angle, 2);
+    Serial.print(angle - 90, 2);
     Serial.print("° | PID Out: ");
     Serial.print(output, 1);
     Serial.print(" | PWM: L=");

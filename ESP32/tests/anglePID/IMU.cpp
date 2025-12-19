@@ -2,21 +2,11 @@
 #include <Arduino.h>
 #include <math.h>
 
-/*
-  IMU.cpp
-  --------
-  Kalman pitch estimator
-  Pitch definition matches:
-  pitchAcc = atan2(-ax, sqrt(ay^2 + az^2))
-  Gyro source = gy
-  Timing = micros()
-*/
-
 IMU::IMU()
-    : pitchAngle(0.0f),
-      gyroPitchRate(0.0f),
+    : rollAngle(0.0f),
+      gyroRollRate(0.0f),
       lastTime(0),
-      accPitch(0.0f),
+      accRoll(0.0f),
       dt(0.0f) {
 }
 
@@ -37,9 +27,9 @@ bool IMU::initialize() {
     mpu.setZGyroOffset(0);
 
     // Kalman parameters (same behavior as your test)
-    kalmanPitch.setQangle(0.001f);
-    kalmanPitch.setQbias(0.003f);
-    kalmanPitch.setRmeasure(0.03f);
+    kalmanRoll.setQangle(0.001f);
+    kalmanRoll.setQbias(0.003f);
+    kalmanRoll.setRmeasure(0.03f);
 
     lastTime = micros();
 
@@ -62,20 +52,20 @@ bool IMU::updateAngle() {
         return false;
     }
 
-    // Accelerometer pitch (EXACT same formula)
-    accPitch = atan2(-ax, sqrt((float)ay * ay + (float)az * az)) * 180.0f / PI;
+    // Accelerometer ROLL
+    accRoll = atan2(-ay, az) * 180.0f / PI;
 
-    // Gyro pitch rate from Y-axis (deg/s)
-    gyroPitchRate = (float)gy / 131.0f;
+    // Gyro ROLL rate from X-axis (deg/s)
+    gyroRollRate = (float)gx / 131.0f;  // deg/s
 
     // Kalman filter
-    kalmanPitchAngle = kalmanPitch.getAngle(accPitch, gyroPitchRate, dt);
-    pitchAngle = kalmanPitchAngle + 90;
+    kalmanRollAngle = kalmanRoll.getAngle(accRoll, gyroRollRate, dt);
+    rollAngle = kalmanRollAngle + 90; // offset may be 0–90 depending on mounting
 
     return true;
 }
 
 void IMU::printDiagnostics() {
-    Serial.print(" Pitch: ");
-    Serial.print(pitchAngle, 2);
+    Serial.print(" Roll: ");
+    Serial.println(rollAngle, 2);
 }

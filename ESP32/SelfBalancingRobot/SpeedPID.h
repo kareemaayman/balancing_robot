@@ -19,7 +19,7 @@ private:
     
 public:
     SpeedPID(const char* name = "SpeedPID",
-             double Kp, double Ki, double Kd);
+             double Kp=0.0, double Ki=0, double Kd=0);
     
     void initialize();
     

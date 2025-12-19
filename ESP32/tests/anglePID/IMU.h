@@ -8,11 +8,11 @@
 class IMU {
 private:
     MPU6050 mpu;
-    Kalman kalmanPitch;
-  float kalmanPitchAngle;
-	float pitchAngle;
-	float gyroPitchRate;
-	float accPitch;
+    Kalman kalmanRoll;
+    float kalmanRollAngle;
+    float rollAngle;
+    float gyroRollRate;
+    float accRoll;
 	float dt;
 	unsigned long lastTime = 0;
 
@@ -23,7 +23,7 @@ public:
     bool initialize();
     bool updateAngle();
 
-    float getPitchAngle() const { return pitchAngle; }
+    float getRollAngle() const { return rollAngle; }
     void printDiagnostics();
 };
 

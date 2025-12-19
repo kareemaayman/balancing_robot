@@ -24,6 +24,15 @@ void MotorDriver::initialize() {
 
 void MotorDriver::move(int leftSpeed, int rightSpeed) {
     // Apply correction factors
+    if (leftSpeed>=100&&leftSpeed<150){
+      correctionLeft = 0.9;
+    }
+    else if (leftSpeed>80 && leftSpeed<100){
+      correctionLeft = 0.84;
+    }
+    else if (leftSpeed < 80){
+      correctionLeft = 0.8;
+    }
     leftSpeed = (int)(leftSpeed * correctionLeft);
     rightSpeed = (int)(rightSpeed * correctionRight);
     

@@ -18,7 +18,7 @@ private:
     const unsigned long SAMPLE_TIME_MS = 10;
     
     // Command inputs
-    double forwardCmd;
+    double forwardCmd=0;
     double kMove;
     
 public:
