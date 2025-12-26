@@ -223,40 +223,39 @@ void Robot::finish() {
     Serial.println(" FIFO is done leave her alone");
 }
 
-void Robot::rotate(double degrees, bool relative) {
-    if (!isRunning) {
-        Serial.println("Robot not running! Call start() first.");
-        return;
-    }
-
-    double currentYaw = imu.getYawAngle();
-    double desiredYaw;
-
-    if (relative) {
-        desiredYaw = currentYaw + degrees;
-    } else {
-        desiredYaw = degrees;
-    }
-
-    // Normalize to -180..180
-    while (desiredYaw > 180.0) desiredYaw -= 360.0;
-    while (desiredYaw < -180.0) desiredYaw += 360.0;
-
-    targetYaw = desiredYaw;
-    // Apply setpoint and enable yaw control
-    setYawSetpoint(targetYaw);
-    yawControlEnabled = true; // enable control loop
-    currentTaskState = TASK_ROTATING;
-
-    Serial.print(">>> TASK: rotate(");
-    Serial.print(degrees, 1);
-    Serial.print(relative ? " deg (relative)" : " deg (absolute)");
-    Serial.print(" | current=");
-    Serial.print(currentYaw, 1);
-    Serial.print("° -> target=");
-    Serial.print(targetYaw, 1);
-    Serial.println("°");
+void Robot::rotatePredefinedAngle(double degrees) {
+    // Use relative-rotation API only: delegate to rotateBy
+    rotateBy(degrees);
 }
+
+    void Robot::rotateBy(double degrees) {
+        if (!isRunning) {
+            Serial.println("Robot not running! Call start() first.");
+            return;
+        }
+
+        // Compute absolute target yaw as current yaw + relative degrees
+        double currentYaw = imu.getYawAngle();
+        double desiredYaw = currentYaw + degrees;
+
+        // Normalize to -180..180
+        while (desiredYaw > 180.0) desiredYaw -= 360.0;
+        while (desiredYaw < -180.0) desiredYaw += 360.0;
+
+        targetYaw = desiredYaw;
+        // Apply setpoint and enable yaw control
+        setYawSetpoint(targetYaw);
+        yawControlEnabled = true; // enable control loop
+        currentTaskState = TASK_ROTATING;
+
+        Serial.print(">>> TASK: rotateBy(");
+        Serial.print(degrees, 1);
+        Serial.print(" deg) | current=");
+        Serial.print(currentYaw, 1);
+        Serial.print("° -> target=");
+        Serial.print(targetYaw, 1);
+        Serial.println("°");
+    }
 
 void Robot::moveToBall(double forwardCmd, double turnCmd) {
     if (!isRunning) {
