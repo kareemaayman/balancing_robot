@@ -6,7 +6,8 @@ MotorDriver::MotorDriver(uint8_t leftIN1, uint8_t leftIN2, uint8_t leftENA,
     : leftIN1(leftIN1), leftIN2(leftIN2), leftENA(leftENA),
       rightIN3(rightIN3), rightIN4(rightIN4), rightENB(rightENB),
       pwmFreq(pwmFreq), pwmRes(pwmRes),
-      correctionLeft(1.0), correctionRight(1.0) {}
+      correctionLeft(Config::Motor::CORRECTION_LEFT_DEFAULT),
+      correctionRight(Config::Motor::CORRECTION_RIGHT_DEFAULT) {}
 
 void MotorDriver::initialize() {
     // Setup direction pins
@@ -24,14 +25,16 @@ void MotorDriver::initialize() {
 
 void MotorDriver::move(int leftSpeed, int rightSpeed) {
     // Apply correction factors
-    if (leftSpeed>=100&&leftSpeed<150){
-      correctionLeft = 0.9;
+    if (leftSpeed >= Config::MotorCorrection::CORRECTION_BAND_2_LOW && 
+        leftSpeed < Config::MotorCorrection::CORRECTION_BAND_2_HIGH) {
+      correctionLeft = Config::MotorCorrection::CORRECTION_BAND_2_FACTOR;
     }
-    else if (leftSpeed>80 && leftSpeed<100){
-      correctionLeft = 0.84;
+    else if (leftSpeed > Config::MotorCorrection::CORRECTION_BAND_1_LOW && 
+             leftSpeed < Config::MotorCorrection::CORRECTION_BAND_1_HIGH) {
+      correctionLeft = Config::MotorCorrection::CORRECTION_BAND_1_FACTOR;
     }
-    else if (leftSpeed < 80){
-      correctionLeft = 0.8;
+    else if (leftSpeed < Config::MotorCorrection::CORRECTION_BAND_3_HIGH) {
+      correctionLeft = Config::MotorCorrection::CORRECTION_BAND_3_FACTOR;
     }
     leftSpeed = (int)(leftSpeed * correctionLeft);
     rightSpeed = (int)(rightSpeed * correctionRight);
@@ -57,12 +60,12 @@ void MotorDriver::move(int leftSpeed, int rightSpeed) {
     }
     
     // Apply speed constraints
-    leftSpeed = constrain(leftSpeed, 0, MAX_SPEED);
-    rightSpeed = constrain(rightSpeed, 0, MAX_SPEED);
+    leftSpeed = constrain(leftSpeed, 0, Config::Motor::MAX_SPEED);
+    rightSpeed = constrain(rightSpeed, 0, Config::Motor::MAX_SPEED);
     
     // Apply minimum speed threshold
-    if (leftSpeed > 0 && leftSpeed < MIN_SPEED) leftSpeed = MIN_SPEED;
-    if (rightSpeed > 0 && rightSpeed < MIN_SPEED) rightSpeed = MIN_SPEED;
+    if (leftSpeed > 0 && leftSpeed < Config::Motor::MIN_SPEED) leftSpeed = Config::Motor::MIN_SPEED;
+    if (rightSpeed > 0 && rightSpeed < Config::Motor::MIN_SPEED) rightSpeed = Config::Motor::MIN_SPEED;
     
     // Write PWM
     ledcWrite(leftENA, leftSpeed);

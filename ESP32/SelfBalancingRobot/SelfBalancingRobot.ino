@@ -1,15 +1,20 @@
 // Self-Balancing Robot Main Sketch
 // Using modular library architecture
 
+#include "Config.h"
 #include "Robot.h"
 
 Robot robot;
 unsigned long lastPrintTime = 0;
-const unsigned long PRINT_INTERVAL = 200;  // Print every 200ms
+const unsigned long PRINT_INTERVAL = Config::Serial_Config::PRINT_INTERVAL;
+
+// Sequence of tasks to execute
+int taskIndex = 0;
+bool tasksInitialized = false;
 
 void setup() {
-    Serial.begin(115200);
-    delay(2000);  // Give serial time to initialize
+    Serial.begin(Config::Serial_Config::BAUD_RATE);
+    delay(Config::Serial_Config::STARTUP_DELAY);
     
     Serial.println("\n\n=== SELF-BALANCING ROBOT ===\n");
     
@@ -21,13 +26,21 @@ void setup() {
         }
     }
     
-    // Configure PID gains (conservative starting values)
-    //robot.setAnglePIDGains(20.0, 0.0, 0.5);
-    //robot.setSpeedPIDGains(0.5, 0.2, 0.1); they are already in robot.cpp
-    
     // Start robot
     robot.start();
     lastPrintTime = millis();
+    
+    // === TASK SEQUENCE DEFINITION ===
+    // Uncomment ONE sequence to test, or create your own
+    
+    // Sequence 1: Simple movement test
+    // robot.moveDistance(1.0);
+    
+    // Sequence 2: Rotation test  
+    // robot.rotatePredefinedAngle(90.0);
+    
+    // Sequence 3: Ball tracking test
+    // robot.moveToBall(0.3, 0.1);
 }
 
 void loop() {
@@ -36,13 +49,44 @@ void loop() {
     
     // Print diagnostics every 200ms for monitoring
     if (millis() - lastPrintTime > PRINT_INTERVAL) {
+        printTaskStatus();
         robot.printDebug();
         Serial.println("---");
         lastPrintTime = millis();
     }
+}
+
+void printTaskStatus() {
+    TaskState state = robot.getTaskState();
+    Serial.print("[TASK STATE] ");
     
-    // Optional: Handle serial commands for tuning (implement as needed)
-    // handleSerialCommands();
+    switch(state) {
+        case TASK_IDLE:
+            Serial.println("IDLE");
+            break;
+        case TASK_MOVING_DISTANCE:
+            Serial.print("MOVING_DISTANCE: ");
+            Serial.print(robot.getDistanceTraveled(), 2);
+            Serial.print(" / ");
+            Serial.print(robot.getTargetDistance(), 2);
+            Serial.println(" meters");
+            break;
+        case TASK_ROTATING:
+            Serial.print("ROTATING: Current=");
+            Serial.print(robot.getCurrentYaw(), 1);
+            Serial.print("°, Target=");
+            Serial.print(robot.getTargetYaw(), 1);
+            Serial.println("°");
+            break;
+        case TASK_MOVING_TO_BALL:
+            Serial.println("MOVING_TO_BALL");
+            break;
+        case TASK_COMPLETE:
+            Serial.println("COMPLETE");
+            break;
+        default:
+            Serial.println("UNKNOWN");
+    }
 }
 
 // Future: Implement serial command handler for real-time PID tuning

@@ -2,6 +2,7 @@
 #define MOTOR_DRIVER_H
 
 #include <Arduino.h>
+#include "Config.h"
 
 class MotorDriver {
 private:
