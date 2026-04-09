@@ -26,7 +26,7 @@ namespace Config {
         const uint8_t PWM_RES = 8;
         
         // Speed Limits
-        const uint8_t MIN_SPEED = 70;
+        const uint8_t MIN_SPEED = 60;
         const uint8_t MAX_SPEED = 255;
         
         // Correction Factors (for drift compensation)
@@ -47,9 +47,9 @@ namespace Config {
 
     // ========== YAW PID ==========
     namespace YawPID {
-        const double KP = 1.0;      // Proportional gain for yaw control
-        const double KI = 0.0;     // Integral gain for yaw control
-        const double KD = 0.0;      // Derivative gain for yaw control
+        const double KP = 0.5;      // Proportional gain for yaw control
+        const double KI = 0.05;     // Integral gain for yaw control
+        const double KD = 0.2;      // Derivative gain for yaw control
         const double SETPOINT_DEFAULT = 0.0;  // Default target yaw angle (degrees)
         const unsigned long SAMPLE_TIME_MS = 10;  // PID computation sample time
     }
@@ -59,8 +59,8 @@ namespace Config {
         const unsigned long CONTROL_SAMPLE_TIME = 10;
         const double TURN_CMD_DEFAULT = 0.0;  // Default turn command
         const double SPEED_SCALE = 0.0;
-        const double K_TURN = 1.0;
-        const double TICKS_PER_METER = 6689/0.96;  // Encoder ticks per meter traveled
+        const double K_TURN = 0.5;
+        const double TICKS_PER_METER = 1000.0;  // Encoder ticks per meter traveled (calibrate later)
         // Runtime-modifiable commands (normalize 0..1 for forward, -1..1 for turn)
         extern double FORWARD_CMD;
         extern double TURN_CMD;
@@ -88,7 +88,7 @@ namespace Config {
         
         const double CORRECTION_BAND_2_LOW = 100;
         const double CORRECTION_BAND_2_HIGH = 150;
-        const double CORRECTION_BAND_2_FACTOR = 0.98;
+        const double CORRECTION_BAND_2_FACTOR = 0.95;
         
         const double CORRECTION_BAND_3_HIGH = 80;
         const double CORRECTION_BAND_3_FACTOR = 0.86;

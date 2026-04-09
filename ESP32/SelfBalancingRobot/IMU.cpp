@@ -20,18 +20,23 @@ bool IMU::initialize() {
     }
 
     // Optional: calibrated offsets (tune these if needed)
-    mpu.setXGyroOffset(0);
-    mpu.setYGyroOffset(0);
+    mpu.setXAccelOffset(-124);
+    mpu.setYAccelOffset(-196);
+    mpu.setZAccelOffset(3392);
+    mpu.setXGyroOffset(98);
+    mpu.setYGyroOffset(-29);
     mpu.setZGyroOffset(0);
-
     // Try to initialize DMP
     int devStatus = mpu.dmpInitialize();
     if (devStatus == 0) {
         // turn on the DMP, now we'll get yaw from FIFO
         mpu.setDMPEnabled(true);
+        mpu.resetFIFO();  
         packetSize = mpu.dmpGetFIFOPacketSize();
-        dmpReady = true;
-        Serial.println("DMP initialized and enabled.");
+        Serial.print("DMP packetSize = ");
+        Serial.println(packetSize);
+        dmpReady = (packetSize > 0);
+        //Serial.println("DMP initialized and enabled.");
     } else {
         dmpReady = false;
         Serial.print("DMP initialization failed, code: ");
@@ -46,55 +51,72 @@ bool IMU::initialize() {
 }
 
 bool IMU::updateYaw() {
-    int16_t ax, ay, az;
-    int16_t gx, gy, gz;
-
-    // Time step (seconds)
+    // Time step (seconds) for gyro rate (only used in fallback)
     unsigned long now = micros();
     dt = (now - lastYawTime) / 1000000.0f;
     lastYawTime = now;
-
     if (dt <= 0.0f) {
         return false;
     }
 
-    // Gyro YAW rate from Z-axis (deg/s)
-    mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-    gyroYawRate = (float)gz / 131.0f;
-
-    if (dmpReady) {
-        // If using DMP, read FIFO packet and extract yaw
-        uint16_t fifoCount = mpu.getFIFOCount();
-        if (fifoCount >= packetSize) {
-            mpu.getFIFOBytes(fifoBuffer, packetSize);
-
-            Quaternion q;
-            VectorFloat gravity;
-            float ypr[3];
-
-            mpu.dmpGetQuaternion(&q, fifoBuffer);
-            mpu.dmpGetGravity(&gravity, &q);
-            mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-
-            // ypr[0] is yaw in radians
-            float yaw_deg = ypr[0] * 180.0f / PI;
-
-            // Normalize yaw
-            while (yaw_deg > 180.0f) yaw_deg -= 360.0f;
-            while (yaw_deg < -180.0f) yaw_deg += 360.0f;
-
-            yawAngle = yaw_deg;
-        }
-    } else {
-        // Fallback: integrate raw gyro Z
-        yawAngle += gyroYawRate * dt;
-        
-        // Normalize yaw to -180 to 180 degrees
-        while (yawAngle > 180.0f) yawAngle -= 360.0f;
-        while (yawAngle < -180.0f) yawAngle += 360.0f;
+    if (!dmpReady || packetSize == 0) {
+        // fallback or just return false
+        return false;
     }
 
+    // ----- DMP path -----
+    uint16_t fifoCount = mpu.getFIFOCount();
+
+
+    // Optional: handle overflow (very large fifoCount)
+    if (fifoCount >= 1024) {
+        mpu.resetFIFO();
+        Serial.println("FIFO overflow");
+        return false;
+    }
+
+    if (fifoCount < packetSize) {
+        // no full packet yet -> no new yaw
+        return false;
+    }
+
+    // Drain FIFO, keep the last (newest) packet
+    while (fifoCount >= packetSize) {
+        mpu.getFIFOBytes(fifoBuffer, packetSize);
+        fifoCount -= packetSize;
+    }
+
+    Quaternion q;
+    VectorFloat gravity;
+    float ypr[3];
+
+    mpu.dmpGetQuaternion(&q, fifoBuffer);
+    mpu.dmpGetGravity(&gravity, &q);
+    mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+
+    float yaw_deg = ypr[0] * 180.0f / PI;
+    while (yaw_deg > 180.0f) yaw_deg -= 360.0f;
+    while (yaw_deg < -180.0f) yaw_deg += 360.0f;
+    yawAngle = yaw_deg;
+
+    //Optionally compute gyroYawRate too if you still need it:
+    // int16_t ax, ay, az, gx, gy, gz;
+    // mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+    // gyroYawRate = (float)gz / 131.0f;
+
     return true;
+}
+
+void IMU::resetYawReference() {
+    // call this when robot is steady and you want "now" = 0°
+    yawOffset = yawAngle;
+}
+
+float IMU::getYawDegRelative() const {
+    float yaw = yawAngle - yawOffset;
+    while (yaw > 180.0f) yaw -= 360.0f;
+    while (yaw < -180.0f) yaw += 360.0f;
+    return yaw;
 }
 
 void IMU::printDiagnostics() {

@@ -1,8 +1,10 @@
 #include <Arduino.h>
 #include "MotorDriver.h"
 #include "EncoderReader.h"
+#include "Config.h"
 
-MotorDriver motors(26, 27, 25, 32, 23, 33);
+MotorDriver motors(Config::Motor::IN1, Config::Motor::IN2, Config::Motor::ENA,
+       Config::Motor::IN3, Config::Motor::IN4, Config::Motor::ENB);
 EncoderReader encL(5,15);
 EncoderReader encR(18,19);  // What are your right encoder pins?
 

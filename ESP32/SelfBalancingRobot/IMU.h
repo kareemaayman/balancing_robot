@@ -15,6 +15,7 @@ private:
     // Yaw tracking only
     float yawAngle = 0.0f;
     float gyroYawRate;
+    float yawOffset = 0; 
     
     // DMP (MPU6050) support
     bool dmpReady = false;
@@ -31,6 +32,9 @@ public:
     float getGyroYawRate() const { return gyroYawRate; }
     void resetYaw() { yawAngle = 0.0f; }
     void printDiagnostics();
+    void resetYawReference();
+    float getYawDegRaw() const { return yawAngle; }
+    float getYawDegRelative() const;
 };
 
 #endif

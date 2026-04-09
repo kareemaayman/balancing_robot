@@ -1,108 +1,82 @@
-// Self-Balancing Robot Main Sketch
-// Using modular library architecture
-
 #include "Config.h"
 #include "Robot.h"
 
 Robot robot;
-unsigned long lastPrintTime = 0;
-const unsigned long PRINT_INTERVAL = Config::Serial_Config::PRINT_INTERVAL;
+//MotorDriver motors(Config::Motor::IN1, Config::Motor::IN2, Config::Motor::ENA,
+  //  Config::Motor::IN3, Config::Motor::IN4, Config::Motor::ENB);
 
-// Sequence of tasks to execute
-int taskIndex = 0;
-bool tasksInitialized = false;
+// ====== TEST CONFIG ======
+// Uncomment exactly ONE of these at a time to test
+
+//#define TEST_MOVE_DISTANCE
+//#define TEST_ROTATE_ANGLE
+#define TEST_MANUAL_DRIVE   // simple forward/backward/turn demo
 
 void setup() {
     Serial.begin(Config::Serial_Config::BAUD_RATE);
     delay(Config::Serial_Config::STARTUP_DELAY);
+
+    Serial.println("\n=== ROBOT TEST SKETCH ===");
     
-    Serial.println("\n\n=== SELF-BALANCING ROBOT ===\n");
-    
-    // Initialize robot and all components
     if (!robot.initialize()) {
-        Serial.println("FATAL: Robot initialization FAILED!");
-        while(1) {
-            delay(1000);
-        }
+        Serial.println("Robot init FAILED!");
+        while (true) { delay(1000); }
     }
-    
-    // Start robot
+
     robot.start();
-    lastPrintTime = millis();
+    Serial.println("Robot init DONE, starting test...");
     
-    // === TASK SEQUENCE DEFINITION ===
-    // Uncomment ONE sequence to test, or create your own
+#ifdef TEST_MOVE_DISTANCE
+    Serial.println(">> TEST: MOVE DISTANCE");
+    // Example: move 1.0 m at 50% speed
+    robot.moveDistance(1.0, 0.5);
+    Serial.println(">> MOVE DISTANCE TEST DONE");
+#endif
+
+#ifdef TEST_ROTATE_ANGLE
+    Serial.println(">> TEST: ROTATE ANGLE");
+    // Example: rotate +90 degrees (clockwise)
     
-    // Sequence 1: Simple movement test
-    // robot.moveDistance(1.0);
-    
-    // Sequence 2: Rotation test  
-    // robot.rotatePredefinedAngle(90.0);
-    
-    // Sequence 3: Ball tracking test
-    // robot.moveToBall(0.3, 0.1);
+    robot.rotatePredefinedAngle(-45.0);
+    //delay(1000);
+    // Example: rotate -90 degrees (back)
+    //robot.rotatePredefinedAngle(-90.0);
+    Serial.println(">> ROTATE ANGLE TEST DONE");
+#endif
+
+#ifdef TEST_MANUAL_DRIVE
+    Serial.println(">> TEST: MANUAL DRIVE");
+    // Simple sequence: forward, stop, turn in place, stop, backward
+    // Forward 0.4 for 2 seconds
+    robot.driveCommand(0.4, 0.0);
+    delay(2000);
+    robot.driveCommand(0.0, 0.0);
+    delay(1000);
+
+    // Turn in place to the left for 2 seconds
+    robot.driveCommand(0.0, 0.5);
+    delay(2000);
+    robot.driveCommand(0.0, 0.0);
+    delay(1000);
+
+    // Backwards (negative forward command not supported by your Robot,
+    // so we just use small forward + negative turn to see different motion)
+    robot.driveCommand(-0.3, -0.5);
+    delay(2000);
+    robot.driveCommand(0.0, 0.0);
+    Serial.println(">> MANUAL DRIVE TEST DONE");
+#endif
+
+    robot.stop();
 }
 
 void loop() {
-    // Main control update - happens every ~10ms
-    robot.update();
-    
-    // Print diagnostics every 200ms for monitoring
-    if (millis() - lastPrintTime > PRINT_INTERVAL) {
-        printTaskStatus();
-        robot.printDebug();
-        Serial.println("---");
-        lastPrintTime = millis();
-    }
+    //motors.move(120,120);
+   // delay(1000);
+   // motors.move(0,-200);
+    //motors.move(200,0);
+    //delay(1000);
+   // motors.move(-200,0);
+    // For now, all tests are blocking in setup(), so loop is empty.
+    // Later you can move tests here for non-blocking / ROS-driven behavior.
 }
-
-void printTaskStatus() {
-    TaskState state = robot.getTaskState();
-    Serial.print("[TASK STATE] ");
-    
-    switch(state) {
-        case TASK_IDLE:
-            Serial.println("IDLE");
-            break;
-        case TASK_MOVING_DISTANCE:
-            Serial.print("MOVING_DISTANCE: ");
-            Serial.print(robot.getDistanceTraveled(), 2);
-            Serial.print(" / ");
-            Serial.print(robot.getTargetDistance(), 2);
-            Serial.println(" meters");
-            break;
-        case TASK_ROTATING:
-            Serial.print("ROTATING: Current=");
-            Serial.print(robot.getCurrentYaw(), 1);
-            Serial.print("°, Target=");
-            Serial.print(robot.getTargetYaw(), 1);
-            Serial.println("°");
-            break;
-        case TASK_MOVING_TO_BALL:
-            Serial.println("MOVING_TO_BALL");
-            break;
-        case TASK_COMPLETE:
-            Serial.println("COMPLETE");
-            break;
-        default:
-            Serial.println("UNKNOWN");
-    }
-}
-
-// Future: Implement serial command handler for real-time PID tuning
-/*
-void handleSerialCommands() {
-    if (Serial.available()) {
-        char cmd = Serial.read();
-        
-        if (cmd == 'S') {
-            robot.start();
-        } else if (cmd == 's') {
-            robot.stop();
-        } else if (cmd == 'T') {
-            robot.printStatus();
-        }
-        // Add more commands as needed
-    }
-}
-*/

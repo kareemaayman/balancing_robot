@@ -13,7 +13,8 @@ void setup() {
 }
 
 void loop() {
-  // 1) Both forward, ramp speed up
+  motors.move(0,200);
+  /*// 1) Both forward, ramp speed up
   Serial.println("Forward ramp");
   for (int s = 0; s <= 255; s += 20) {
     motors.move(s, s);    // both motors same speed
@@ -38,7 +39,7 @@ void loop() {
   // 5) Both Right, ramp speed up
   Serial.println("Right ramp");
   for (int s = 0; s <= 255; s += 20) {
-    motors.move(-s, s);    // both motors same speed
+    motors.move(0, s);    // both motors same speed
     delay(300);
   }
   
@@ -49,11 +50,11 @@ void loop() {
   // 7) Both Left, ramp speed up
   Serial.println("Left ramp");
   for (int s = 0; s <= 255; s += 20) {
-    motors.move(s, -s);    // both motors same speed
+    motors.move(s, 0);    // both motors same speed
     delay(300);
   }
 
   // 8) Stop and pause
   motors.stop();
-  delay(1000);
+  delay(1000);*/
 }

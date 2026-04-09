@@ -25,17 +25,17 @@ void MotorDriver::initialize() {
 
 void MotorDriver::move(int leftSpeed, int rightSpeed) {
     // Apply correction factors
-    /*if (rightSpeed >= Config::MotorCorrection::CORRECTION_BAND_2_LOW && 
-        rightSpeed < Config::MotorCorrection::CORRECTION_BAND_2_HIGH) {
-      correctionRight = Config::MotorCorrection::CORRECTION_BAND_2_FACTOR;
+    if (leftSpeed >= Config::MotorCorrection::CORRECTION_BAND_2_LOW && 
+        leftSpeed < Config::MotorCorrection::CORRECTION_BAND_2_HIGH) {
+      correctionLeft = Config::MotorCorrection::CORRECTION_BAND_2_FACTOR;
     }
-    else if (rightSpeed > Config::MotorCorrection::CORRECTION_BAND_1_LOW && 
-             rightSpeed < Config::MotorCorrection::CORRECTION_BAND_1_HIGH) {
-      correctionRight = Config::MotorCorrection::CORRECTION_BAND_1_FACTOR;
+    else if (leftSpeed > Config::MotorCorrection::CORRECTION_BAND_1_LOW && 
+             leftSpeed < Config::MotorCorrection::CORRECTION_BAND_1_HIGH) {
+      correctionLeft = Config::MotorCorrection::CORRECTION_BAND_1_FACTOR;
     }
-    else if (rightSpeed < Config::MotorCorrection::CORRECTION_BAND_3_HIGH) {
-      correctionRight = Config::MotorCorrection::CORRECTION_BAND_3_FACTOR;
-    }*/
+    else if (leftSpeed < Config::MotorCorrection::CORRECTION_BAND_3_HIGH) {
+      correctionLeft = Config::MotorCorrection::CORRECTION_BAND_3_FACTOR;
+    }
     leftSpeed = (int)(leftSpeed * correctionLeft);
     rightSpeed = (int)(rightSpeed * correctionRight);
     

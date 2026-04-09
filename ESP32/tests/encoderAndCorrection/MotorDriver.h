@@ -2,18 +2,19 @@
 #define MOTOR_DRIVER_H
 
 #include <Arduino.h>
+#include "Config.h"
 
 class MotorDriver {
 private:
     // Left motor pins
-    const uint8_t leftIN1;
-    const uint8_t leftIN2;
-    const uint8_t leftENA;
+    const uint8_t leftIN3;
+    const uint8_t leftIN4;
+    const uint8_t leftENB;
     
     // Right motor pins
-    const uint8_t rightIN3;
-    const uint8_t rightIN4;
-    const uint8_t rightENB;
+    const uint8_t rightIN1;
+    const uint8_t rightIN2;
+    const uint8_t rightENA;
     
     // PWM settings
     const uint32_t pwmFreq;
@@ -28,8 +29,8 @@ private:
     static const uint8_t MAX_SPEED = 255;
     
 public:
-    MotorDriver(uint8_t leftIN1, uint8_t leftIN2, uint8_t leftENA,
-                uint8_t rightIN3, uint8_t rightIN4, uint8_t rightENB,
+    MotorDriver(uint8_t rightIN1, uint8_t rightIN2, uint8_t rightENA,
+                uint8_t leftIN3, uint8_t leftIN4, uint8_t leftENB,
                 uint32_t pwmFreq = 1000, uint8_t pwmRes = 8);
     
     void initialize();

@@ -1,61 +1,61 @@
 #include "MotorDriver.h"
 
-MotorDriver::MotorDriver(uint8_t leftIN1, uint8_t leftIN2, uint8_t leftENA,
-                         uint8_t rightIN3, uint8_t rightIN4, uint8_t rightENB,
-                         uint32_t pwmFreq, uint8_t pwmRes)
-    : leftIN1(leftIN1), leftIN2(leftIN2), leftENA(leftENA),
-      rightIN3(rightIN3), rightIN4(rightIN4), rightENB(rightENB),
+MotorDriver::MotorDriver(uint8_t rightIN1, uint8_t rightIN2, uint8_t rightENA,
+                        uint8_t leftIN3, uint8_t leftIN4, uint8_t leftENB,
+                        uint32_t pwmFreq, uint8_t pwmRes)
+    : rightIN1(rightIN1), rightIN2(rightIN2), rightENA(rightENA),
+      leftIN3(leftIN3), leftIN4(leftIN4), leftENB(leftENB),
       pwmFreq(pwmFreq), pwmRes(pwmRes),
       correctionLeft(Config::Motor::CORRECTION_LEFT_DEFAULT),
       correctionRight(Config::Motor::CORRECTION_RIGHT_DEFAULT) {}
 
 void MotorDriver::initialize() {
     // Setup direction pins
-    pinMode(leftIN1, OUTPUT);
-    pinMode(leftIN2, OUTPUT);
-    pinMode(rightIN3, OUTPUT);
-    pinMode(rightIN4, OUTPUT);
+    pinMode(rightIN1, OUTPUT);
+    pinMode(rightIN2, OUTPUT);
+    pinMode(leftIN3, OUTPUT);
+    pinMode(leftIN4, OUTPUT);
     
     // Setup PWM (ESP32 LEDC)
-    ledcAttach(leftENA, pwmFreq, pwmRes);
-    ledcAttach(rightENB, pwmFreq, pwmRes);
+    ledcAttach(rightENA, pwmFreq, pwmRes);
+    ledcAttach(leftENB, pwmFreq, pwmRes);
     
     Serial.println("Motor driver initialized!");
 }
 
 void MotorDriver::move(int leftSpeed, int rightSpeed) {
     // Apply correction factors
-    if (leftSpeed >= Config::MotorCorrection::CORRECTION_BAND_2_LOW && 
-        leftSpeed < Config::MotorCorrection::CORRECTION_BAND_2_HIGH) {
-      correctionLeft = Config::MotorCorrection::CORRECTION_BAND_2_FACTOR;
+    if (rightSpeed >= Config::MotorCorrection::CORRECTION_BAND_2_LOW && 
+        rightSpeed < Config::MotorCorrection::CORRECTION_BAND_2_HIGH) {
+      correctionRight = Config::MotorCorrection::CORRECTION_BAND_2_FACTOR;
     }
-    else if (leftSpeed > Config::MotorCorrection::CORRECTION_BAND_1_LOW && 
-             leftSpeed < Config::MotorCorrection::CORRECTION_BAND_1_HIGH) {
-      correctionLeft = Config::MotorCorrection::CORRECTION_BAND_1_FACTOR;
+    else if (rightSpeed > Config::MotorCorrection::CORRECTION_BAND_1_LOW && 
+             rightSpeed < Config::MotorCorrection::CORRECTION_BAND_1_HIGH) {
+      correctionRight = Config::MotorCorrection::CORRECTION_BAND_1_FACTOR;
     }
-    else if (leftSpeed < Config::MotorCorrection::CORRECTION_BAND_3_HIGH) {
-      correctionLeft = Config::MotorCorrection::CORRECTION_BAND_3_FACTOR;
+    else if (rightSpeed < Config::MotorCorrection::CORRECTION_BAND_3_HIGH) {
+      correctionRight = Config::MotorCorrection::CORRECTION_BAND_3_FACTOR;
     }
     leftSpeed = (int)(leftSpeed * correctionLeft);
     rightSpeed = (int)(rightSpeed * correctionRight);
     
     // LEFT MOTOR
     if (leftSpeed >= 0) {
-        digitalWrite(leftIN1, HIGH);
-        digitalWrite(leftIN2, LOW);
+        digitalWrite(leftIN3, HIGH);
+        digitalWrite(leftIN4, LOW);
     } else {
-        digitalWrite(leftIN1, LOW);
-        digitalWrite(leftIN2, HIGH);
+        digitalWrite(leftIN3, LOW);
+        digitalWrite(leftIN4, HIGH);
         leftSpeed = -leftSpeed;
     }
     
     // RIGHT MOTOR
     if (rightSpeed >= 0) {
-        digitalWrite(rightIN3, HIGH);
-        digitalWrite(rightIN4, LOW);
+        digitalWrite(rightIN1, HIGH);
+        digitalWrite(rightIN2, LOW);
     } else {
-        digitalWrite(rightIN3, LOW);
-        digitalWrite(rightIN4, HIGH);
+        digitalWrite(rightIN1, LOW);
+        digitalWrite(rightIN2, HIGH);
         rightSpeed = -rightSpeed;
     }
     
@@ -68,8 +68,8 @@ void MotorDriver::move(int leftSpeed, int rightSpeed) {
     if (rightSpeed > 0 && rightSpeed < Config::Motor::MIN_SPEED) rightSpeed = Config::Motor::MIN_SPEED;
     
     // Write PWM
-    ledcWrite(leftENA, leftSpeed);
-    ledcWrite(rightENB, rightSpeed);
+    ledcWrite(leftENB, leftSpeed);
+    ledcWrite(rightENA, rightSpeed);
 }
 
 void MotorDriver::stop() {
