@@ -73,7 +73,6 @@ The system was developed and validated incrementally through modular testing:
 This staged approach ensured each subsystem functioned correctly before full system integration.
 
 ## 📁 Repository Structure
-## 📁 Repository Structure
 
 ```text
 ESP32/
