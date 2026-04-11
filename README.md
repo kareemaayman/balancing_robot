@@ -1,4 +1,4 @@
-# Self-Balancing Robot (ESP32 + MPU6050)
+# Self-Balancing Robot — Embedded System (ESP32)
 
 A two-wheeled self-balancing robot using real-time feedback control (PID) implemented on ESP32. The system maintains stability by continuously correcting tilt angle using IMU data.
 
